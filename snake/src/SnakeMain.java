@@ -31,14 +31,15 @@ public class SnakeMain{
         Arrays.fill(biBuffer, 0x00FF0000);
 
         String className = "SnakeGame";
-        String methodName = "sayHello";
+        String methodName = "gameUpdateAndRender";
         for(;;){
             MyClassLoader myClassLoader = new MyClassLoader();
             Class klass = myClassLoader.getClass(className);
             if(klass!=null){
                 try{
-                    Method m = klass.getDeclaredMethod(methodName);
-                    m.invoke(null);
+                    Method m = klass.getDeclaredMethod(methodName, int[].class, Integer.class);
+                    m.invoke(null, biBuffer, 960);
+                    frame.repaint();
                 }catch(NoSuchMethodException e){
                     System.out.println("Waiting for impl of Method "
                             + methodName);
