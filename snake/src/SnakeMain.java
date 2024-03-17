@@ -14,8 +14,8 @@ public class SnakeMain{
         BufferedImage bi = gc.createCompatibleImage(960, 570);
         MyFrame frame = new MyFrame(bi);
         frame.setPreferredSize(new Dimension(960, 540));
-        MyWindowListener windowListener = new MyWindowListener();
-        frame.addWindowListener(windowListener);
+        frame.addWindowListener(new MyWindowListener());
+        frame.addKeyListener(new MyKeyListener());
         frame.pack();
         frame.setVisible(true);
 
@@ -76,5 +76,17 @@ class MyWindowListener implements WindowListener{
 
 
 
+class MyKeyListener implements KeyListener{
+    public void keyReleased(KeyEvent e){
+        System.out.println(e);
+    }
+    public void keyPressed(KeyEvent e){
+        System.out.println(e);
+    }
+    public void keyTyped(KeyEvent e){
+        // Process keyPressed and keyReleased events OR keyTyped events
+        // Dont process both.
+    }
+}
 
 
