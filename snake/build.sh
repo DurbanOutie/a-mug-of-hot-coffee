@@ -2,5 +2,5 @@
 rm -rf ./build
 mkdir build
 pushd build
-javac ../src/SnakeMain.java -d .
+javac ../src/*.java -d .
 popd
