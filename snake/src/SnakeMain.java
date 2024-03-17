@@ -74,19 +74,93 @@ class MyWindowListener implements WindowListener{
 
 }
 
-
-
 class MyKeyListener implements KeyListener{
     public void keyReleased(KeyEvent e){
-        System.out.println(e);
+        processKey(e);
     }
     public void keyPressed(KeyEvent e){
-        System.out.println(e);
+        processKey(e);
     }
     public void keyTyped(KeyEvent e){
         // Process keyPressed and keyReleased events OR keyTyped events
         // Dont process both.
     }
+    Controller controller = new Controller();
+
+    // Will only look at the letter characters for this example
+    boolean[] wasDownKeys = new boolean[26];
+
+    private void processKey(KeyEvent e){
+        boolean isDown = e.getID()==KeyEvent.KEY_PRESSED;
+        //VK_A = 65, we minus 65 to get 0 for first index
+        //VK_Z = 90, we minus 65 to get 25 for last index
+        //Any other keys, ignore
+        int index = e.getKeyCode()-65;
+        if( index < 0 || index > 25){
+            return;
+        }
+
+        boolean wasDown = wasDownKeys[index];
+        
+        if(wasDown!=isDown){
+            //Here we want to actually process the key
+            if(e.getKeyCode()==KeyEvent.VK_W){
+                processKeyMessage(controller.moveUp, isDown);
+            }
+            if(e.getKeyCode()==KeyEvent.VK_S){
+                processKeyMessage(controller.moveDown, isDown);
+            }
+            if(e.getKeyCode()==KeyEvent.VK_A){
+                processKeyMessage(controller.moveLeft, isDown);
+            }
+            if(e.getKeyCode()==KeyEvent.VK_D){
+                processKeyMessage(controller.moveRight, isDown);
+            }
+            System.out.println("------------------");
+
+            for(int i = 0; i < controller.buttonStates.length; ++i){
+                System.out.println("button-" + i + " endedDown - " 
+                        + controller.buttonStates[i].endedDown
+                        );
+            }
+
+        }else{
+            //Dont do anything for repeating events yet
+        }
+        if(isDown){
+            wasDownKeys[index] = true;
+        }else{
+            wasDownKeys[index] = false;
+        }
+    }
+
+    private void processKeyMessage(ButtonState buttonState, boolean isDown){
+        if(buttonState.endedDown!=isDown){
+            buttonState.endedDown = isDown;
+            buttonState.halfTransitionCount++;
+        }
+    }
 }
 
 
+class ButtonState{
+    // down = +1, up = + 1
+    int halfTransitionCount;
+    boolean endedDown;
+}
+
+class Controller{
+    ButtonState[] buttonStates;
+    ButtonState moveUp;
+    ButtonState moveDown;
+    ButtonState moveLeft;
+    ButtonState moveRight;
+
+    public Controller(){
+        moveUp = new ButtonState();
+        moveDown = new ButtonState();
+        moveLeft = new ButtonState();
+        moveRight = new ButtonState();
+        buttonStates = new ButtonState[]{moveUp, moveDown, moveLeft, moveRight};
+    }
+}
