@@ -42,6 +42,7 @@ public class DoubleBufferFrame{
 
             // NOTE: Show Current Buffer
             frame.repaint();
+            frame.swapBuffers();
 
             // NOTE: Flip Buffer
 
@@ -68,14 +69,16 @@ class MyFrame extends Frame{
     @Override
     public void paint(Graphics g){
         g.drawImage(current, 0, 0, null);
-        BufferedImage temp = current;
-        current = next;
-        next = temp;
     }
     @Override
     public void repaint(){
         System.out.println("Repainting...");
         super.repaint();
+    }
+    public void swapBuffers(){
+        BufferedImage temp = current;
+        current = next;
+        next = temp;
     }
 
 }
