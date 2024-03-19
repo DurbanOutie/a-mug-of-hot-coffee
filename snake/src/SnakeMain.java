@@ -16,8 +16,9 @@ public class SnakeMain{
         GraphicsDevice gd = ge.getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         
-        BufferedImage bi = gc.createCompatibleImage(960, 570);
-        MyFrame frame = new MyFrame(bi);
+        BufferedImage current = gc.createCompatibleImage(960, 540);
+        BufferedImage next = gc.createCompatibleImage(960, 540);
+        MyFrame frame = new MyFrame(current, next);
         frame.setPreferredSize(new Dimension(960, 540));
         frame.addWindowListener(new MyWindowListener());
         frame.addKeyListener(new MyKeyListener());
@@ -25,10 +26,10 @@ public class SnakeMain{
         frame.setVisible(true);
 
         // NOTE: Get raw buffer from BufferedImage to write image data
-        int[] biBuffer = ((DataBufferInt)(bi.getRaster().getDataBuffer()))
-            .getData();
-        // NOTE: just filling the buffer with CYAN colour.
-        Arrays.fill(biBuffer, 0x00FF0000);
+        int[] currentBuffer = ((DataBufferInt)(current.getRaster()
+                    .getDataBuffer())).getData();
+        int[] nextBuffer = ((DataBufferInt)(next.getRaster()
+                    .getDataBuffer())).getData();
 
         String className = "SnakeGame";
         String methodName = "gameUpdateAndRender";
@@ -37,15 +38,22 @@ public class SnakeMain{
             Class klass = myClassLoader.getClass(className);
             if(klass!=null){
                 try{
-                    Method m = klass.getDeclaredMethod(methodName, int[].class, Integer.class);
-                    m.invoke(null, biBuffer, 960);
-                    frame.repaint();
+                    Method m = klass.getDeclaredMethod(
+                            methodName, int[].class, Integer.class);
+                    m.invoke(null, nextBuffer, 960);
+                    // NOTE: just filling the buffer with CYAN colour.
                 }catch(NoSuchMethodException e){
                     System.out.println("Waiting for impl of Method "
                             + methodName);
                 }
             }
-            Thread.sleep(2000);
+            frame.repaint();
+            frame.swapBuffers();
+            
+            int[] temp = currentBuffer;
+            currentBuffer = nextBuffer;
+            nextBuffer = temp;
+            Thread.sleep(100);
         }
 
     }
@@ -71,16 +79,28 @@ class MyClassLoader extends ClassLoader{
 
 class MyFrame extends Frame{
 
-    BufferedImage bi;
+    BufferedImage current;
+    BufferedImage next;
 
-    public MyFrame(BufferedImage bi){
-        this.bi = bi;
+    public MyFrame(BufferedImage current, BufferedImage next){
+        this.current = current;
+        this.next = next;
     }
     
     // NOTE: Override paint method to draw to the frame
     @Override
     public void paint(Graphics g){
-        g.drawImage(bi, 0, 0, null);
+        g.drawImage(current, 0, 0, null);
+    }
+    @Override
+    public void repaint(){
+        System.out.println("Repainting...");
+        super.repaint();
+    }
+    public void swapBuffers(){
+        BufferedImage temp = current;
+        current = next;
+        next = temp;
     }
 
 }
